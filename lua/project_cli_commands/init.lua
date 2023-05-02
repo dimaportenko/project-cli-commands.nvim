@@ -46,14 +46,13 @@ M.open = function(opts)
         error("commands.lua could not be created.")
       end
 
-      file:write("return {}\n")
+      file:write("return {\n  ['ls'] = 'ls -tls'\n}\n")
       file:close()
 
       print("commands.lua created with an empty table.")
       vim.api.nvim_command('edit ' .. filePath)
-    else
-      error("commands.lua not found and not created.")
     end
+    return
   end
 
   -- Execute the loaded chunk to get the table
@@ -129,12 +128,21 @@ M.open = function(opts)
         execute_script_with_params(true)
       end
 
+      local copy_command_clipboard = function()
+        local selection = state.get_selected_entry()
+        actions.close(prompt_bufnr)
+
+        vim.fn.setreg('+', selection.code)
+      end
 
       map('i', '<CR>', execute_script)
       map('n', '<CR>', execute_script)
 
       map('i', '<C-i>', execute_script_with_input)
       map('n', '<C-i>', execute_script_with_input)
+
+      map('i', '<C-c>', copy_command_clipboard)
+      map('n', '<C-c>', copy_command_clipboard)
 
       return true
     end
