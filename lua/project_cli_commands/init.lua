@@ -22,18 +22,15 @@ local createDirIfNotExists = function(filePath)
   return true
 end
 
-local M = {}
 
-M.open = function(opts)
-  opts = opts or {}
+local openConfigFile = function()
+  local filePath = vim.fn.getcwd() .. '/.nvim/config.json'
 
-  local filePath = vim.fn.getcwd() .. '/.nvim/commands.lua'
-
-  local chunk, err = loadfile(filePath)
-  if err then -- Prompt user to create new file
+  local file = io.open(filePath, "rb")
+  if file == nil then
     local choice
     repeat
-      choice = vim.fn.input("commands.lua isn't found do you want to create it? (y/n): ")
+      choice = vim.fn.input(".nvim/config.json isn't found do you want to create it? (y/n): ")
     until choice == 'y' or choice == 'n'
 
     if choice == 'y' then
@@ -41,29 +38,40 @@ M.open = function(opts)
         error("Can't create .nvim directory.")
       end
       -- Create a new file and write an empty table
-      local file = io.open(filePath, "w")
-      if file == nil then
-        error("commands.lua could not be created.")
+      local new_file = io.open(filePath, "w")
+      if new_file == nil then
+        error(".nvim/config.json could not be created.")
       end
 
-      file:write("return {\n  ['ls'] = 'ls -tls'\n}\n")
-      file:close()
+      new_file:write("{\n  \"commands\": {\n    \"ls:la\": \"ls -la\"\n   }\n}\n")
+      new_file:close()
 
-      print("commands.lua created with an empty table.")
+      print(".nvim/config.json created with an empty table.")
       vim.api.nvim_command('edit ' .. filePath)
     end
+    return nil, ".nvim/config.json isn't found."
+  end
+
+  local jsonString = file:read "*a"
+  file:close()
+
+  return jsonString, nil
+end
+
+local M = {}
+
+M.open = function(opts)
+  opts = opts or {}
+
+  local jsonString, error = openConfigFile()
+
+  if error ~= nil then
     return
   end
 
-  -- Execute the loaded chunk to get the table
-  if chunk == nil then
-    error("commands.lua is empty.")
-  end
-
-  local commands = chunk()
-
+  local scriptsFromJson = vim.fn.json_decode(jsonString)['commands']
   local scriptsNames    = {}
-  for name, code in pairs(commands) do
+  for name, code in pairs(scriptsFromJson) do
     table.insert(scriptsNames, { name, code })
   end
 
