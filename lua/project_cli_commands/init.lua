@@ -6,6 +6,7 @@ local sorters = require('telescope.sorters')
 -- local previewers = require("telescope.previewers")
 local Terminal = require("toggleterm.terminal").Terminal
 
+local next_id = require("project_cli_commands.term_utils").next_id
 local openConfigFile = require("project_cli_commands.file").openConfigFile
 
 local M = {}
@@ -67,9 +68,12 @@ M.open = function(opts)
           params = ' ' .. vim.fn.input(selection.code .. ' ')
         end
 
+        local id = next_id()
+
         local cmdTerm = Terminal:new({
-          cmd = selection.value .. params,
-          hidden = true,
+          id            = id,
+          cmd           = selection.value .. params,
+          hidden        = true,
           close_on_exit = false,
         })
 
