@@ -7,7 +7,7 @@ else
   error "Cannot find telescope!"
 end
 
-local toggle_term = require("lib.term").toggle_term
+local toggle_term = require("project_cli_commands.term_utils").toggle_term
 
 local M = {}
 

@@ -7,7 +7,6 @@ local conf = require("telescope.config").values
 local previewers = require("telescope.previewers")
 
 
--- local previewers = require("telescope.previewers")
 local Terminal = require("toggleterm.terminal").Terminal
 
 local next_id = require("project_cli_commands.term_utils").next_id
