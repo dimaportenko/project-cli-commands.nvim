@@ -17,8 +17,9 @@ M.next_id = function ()
   end
 end
 
-M.toggle_term = function (bfnr, direction)
+M.toggle_term = function (bfnr, direction, size)
    direction = direction or "horizontal"
+   size = size
    local bufnr = tonumber(bfnr)
    local all_terminals = require("toggleterm.terminal").get_all(true)
    local id = nil
@@ -29,7 +30,7 @@ M.toggle_term = function (bfnr, direction)
    end
 
    if id then
-      require("toggleterm").toggle(id, nil, nil, direction)
+      require("toggleterm").toggle(id, size, nil, direction)
    else
       id = M.next_id()
       ---@diagnostic disable-next-line: param-type-mismatch

@@ -3,6 +3,7 @@ local defaults = {
   telescope_mappings = {
     ['<C-c>'] = require('project_cli_commands.actions').exit_terminal,
     ['<C-f>'] = require('project_cli_commands.actions').open_float,
+    ['<C-v>'] = require('project_cli_commands.actions').open_vertical,
   }
 }
 

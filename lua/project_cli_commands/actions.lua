@@ -27,7 +27,11 @@ function M.open_float(prompt_bufnr)
   M.open(prompt_bufnr, "float")
 end
 
-function M.open(prompt_bufnr, direction)
+function M.open_vertical(prompt_bufnr)
+  M.open(prompt_bufnr, "vertical", 60)
+end
+
+function M.open(prompt_bufnr, direction, size)
   direction = direction or "horizontal"
   actions.close(prompt_bufnr)
   local selection = actions_state.get_selected_entry()
@@ -35,7 +39,7 @@ function M.open(prompt_bufnr, direction)
     return
   end
   local bufnr = tostring(selection.value.bufnr)
-  toggle_term(bufnr, direction)
+  toggle_term(bufnr, direction, size)
 end
 
 return M
