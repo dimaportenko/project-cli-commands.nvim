@@ -1,19 +1,13 @@
 local actions = require('telescope.actions')
-local state = require('telescope.actions.state')
 local finders = require('telescope.finders')
 local pickers = require('telescope.pickers')
 local sorters = require('telescope.sorters')
 local conf = require("telescope.config").values
 local previewers = require("telescope.previewers")
 
-
-local Terminal = require("toggleterm.terminal").Terminal
-
-local next_id = require("project_cli_commands.term_utils").next_id
 local openConfigFile = require("project_cli_commands.file").openConfigFile
 local getSubstringAfterSecondSlash = require("project_cli_commands.str_utils").getSubstringAfterSecondSlash
 local open_action = require('project_cli_commands.actions').open
-
 
 local M = {}
 
@@ -65,52 +59,14 @@ M.open = function(opts)
     },
     sorter = sorters.get_generic_fuzzy_sorter(),
     attach_mappings = function(prompt_bufnr, map)
-      local execute_script_with_params = function(with_params)
-        local selection = state.get_selected_entry()
-        actions.close(prompt_bufnr)
-
-        local params = ''
-        if with_params then
-          params = ' ' .. vim.fn.input(selection.code .. ' ')
-        end
-
-        local id = next_id()
-
-        local cmdTerm = Terminal:new({
-          id            = id,
-          cmd           = selection.value .. params,
-          hidden        = true,
-          close_on_exit = false,
-        })
-
-        cmdTerm:toggle()
-        -- print(vim.inspect(scriptsFromJson[selection.value]))
-        -- print(vim.inspect(selection.value))
+      -- setup mappings
+      local mappings = M.config.open_telescope_mapping
+      for _, mapping in pairs(mappings) do
+        map(mapping.mode, mapping.key, mapping.action)
+        map(mapping.mode, mapping.key, function()
+          mapping.action(prompt_bufnr)
+        end)
       end
-
-      local execute_script = function()
-        execute_script_with_params(false)
-      end
-
-      local execute_script_with_input = function()
-        execute_script_with_params(true)
-      end
-
-      local copy_command_clipboard = function()
-        local selection = state.get_selected_entry()
-        actions.close(prompt_bufnr)
-
-        vim.fn.setreg('+', selection.code)
-      end
-
-      map('i', '<CR>', execute_script)
-      map('n', '<CR>', execute_script)
-
-      map('i', '<C-i>', execute_script_with_input)
-      map('n', '<C-i>', execute_script_with_input)
-
-      map('i', '<C-c>', copy_command_clipboard)
-      map('n', '<C-c>', copy_command_clipboard)
 
       return true
     end
@@ -180,7 +136,7 @@ M.running = function(opts)
       actions.select_default:replace(open_action)
 
       -- setup mappings
-      local mappings = M.config.telescope_mappings
+      local mappings = M.config.running_telescope_mapping
       for keybind, action in pairs(mappings) do
         map("i", keybind, function()
           action(prompt_bufnr)
