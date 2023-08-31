@@ -22,8 +22,10 @@ local defaults = {
     --
     -- map('i', '<C-c>', copy_command_clipboard)
     -- map('n', '<C-c>', copy_command_clipboard)
-    { mode = 'i', key = '<CR>',  action = execute_script },
-    { mode = 'n', key = '<CR>',  action = execute_script },
+    { mode = 'i', key = '<CR>',  action = execute_script_vertical },
+    { mode = 'n', key = '<CR>',  action = execute_script_vertical },
+    { mode = 'i', key = '<C-h>', action = execute_script },
+    { mode = 'n', key = '<C-h>', action = execute_script },
     { mode = 'i', key = '<C-i>', action = execute_script_with_input },
     { mode = 'n', key = '<C-i>', action = execute_script_with_input },
     { mode = 'i', key = '<C-c>', action = copy_command_clipboard },
