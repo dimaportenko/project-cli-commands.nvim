@@ -7,7 +7,7 @@ local previewers = require("telescope.previewers")
 
 local openConfigFile = require("project_cli_commands.file").openConfigFile
 local getSubstringAfterSecondSlash = require("project_cli_commands.str_utils").getSubstringAfterSecondSlash
-local open_action = require('project_cli_commands.actions').open
+local open_action = require('project_cli_commands.actions').open_vertical
 
 local M = {}
 

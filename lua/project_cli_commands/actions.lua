@@ -31,6 +31,10 @@ function M.open_vertical(prompt_bufnr)
   M.open(prompt_bufnr, "vertical", 60)
 end
 
+function M.open_horizontal(prompt_bufnr)
+  M.open(prompt_bufnr, "horizontal", 60)
+end
+
 function M.open(prompt_bufnr, direction, size)
   direction = direction or "horizontal"
   actions.close(prompt_bufnr)

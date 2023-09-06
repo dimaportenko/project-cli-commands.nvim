@@ -10,18 +10,9 @@ local defaults = {
     ['<C-c>'] = require('project_cli_commands.actions').exit_terminal,
     ['<C-f>'] = require('project_cli_commands.actions').open_float,
     ['<C-v>'] = require('project_cli_commands.actions').open_vertical,
+    ['<C-h>'] = require('project_cli_commands.actions').open_horizontal,
   },
   open_telescope_mapping = {
-    -- ['<C-f>'] = require('project_cli_commands.actions').open_float,
-    -- ['<C-v>'] = require('project_cli_commands.actions').open_vertical,
-    -- map('i', '<CR>', execute_script)
-    -- map('n', '<CR>', execute_script)
-    --
-    -- map('i', '<C-i>', execute_script_with_input)
-    -- map('n', '<C-i>', execute_script_with_input)
-    --
-    -- map('i', '<C-c>', copy_command_clipboard)
-    -- map('n', '<C-c>', copy_command_clipboard)
     { mode = 'i', key = '<CR>',  action = execute_script_vertical },
     { mode = 'n', key = '<CR>',  action = execute_script_vertical },
     { mode = 'i', key = '<C-h>', action = execute_script },
