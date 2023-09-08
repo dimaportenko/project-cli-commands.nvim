@@ -19,10 +19,17 @@ M.execute_script_with_params = function(prompt_bufnr, with_params, direction, si
   end
 
   local id = next_id()
+  -- Get the current buffer's full path
+  local current_buffer_path = vim.fn.expand('%:p')
+
+  local cmdLine = selection.value .. params
+
+  -- Replace `${currentBuffer}` with the current buffer's path
+  cmdLine = cmdLine:gsub("%${currentBuffer}", current_buffer_path)
 
   local cmdTerm = Terminal:new({
     id            = id,
-    cmd           = selection.value .. params,
+    cmd           = cmdLine,
     hidden        = true,
     close_on_exit = false,
     -- direction     = direction,
