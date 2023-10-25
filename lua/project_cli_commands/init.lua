@@ -6,6 +6,7 @@ local conf = require("telescope.config").values
 local previewers = require("telescope.previewers")
 
 local openConfigFile = require("project_cli_commands.file").openConfigFile
+local readEnvFromFile = require("project_cli_commands.file").readEnvFromFile
 local getSubstringAfterSecondSlash = require("project_cli_commands.str_utils").getSubstringAfterSecondSlash
 local open_action = require('project_cli_commands.actions').open_vertical
 
@@ -28,11 +29,24 @@ M.open = function(opts)
     return
   end
 
-  local scriptsFromJson = vim.fn.json_decode(jsonString)['commands']
+  local jsonTable = vim.fn.json_decode(jsonString)
+  if jsonTable == nil then
+    return
+  end
+
+  local scriptsFromJson = jsonTable['commands']
   local scriptsNames    = {}
   for name, code in pairs(scriptsFromJson) do
     table.insert(scriptsNames, { name, code })
   end
+
+  local envPathHead = jsonTable['env']
+  local envTable
+  if envPathHead then
+    local envFilePath = vim.fn.getcwd() .. '/.nvim/' .. envPathHead
+    envTable = readEnvFromFile(envFilePath)
+  end
+  M.envTable = envTable
 
   -- find the length of the longest script name
   local longestScriptName = 0
@@ -70,7 +84,7 @@ M.open = function(opts)
       -- setup mappings
       local mappings = M.config.open_telescope_mapping
       for _, mapping in pairs(mappings) do
-        map(mapping.mode, mapping.key, mapping.action)
+        -- map(mapping.mode, mapping.key, mapping.action)
         map(mapping.mode, mapping.key, function()
           mapping.action(prompt_bufnr)
         end)

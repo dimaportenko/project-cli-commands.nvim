@@ -52,5 +52,15 @@ M.openConfigFile = function()
   return jsonString, nil
 end
 
+M.readEnvFromFile = function(filepath)
+  local env_table = {}
+  for line in io.lines(filepath) do
+    local key, value = string.match(line, "([^=]+)=(.+)")
+    if key and value then
+      env_table[key] = value
+    end
+  end
+  return env_table
+end
 
 return M

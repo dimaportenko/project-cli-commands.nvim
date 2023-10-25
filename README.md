@@ -17,3 +17,6 @@ Quickly run your project cli commands with Telescope and ToggleTerm.
     - [ ] features description and examples
     - [ ] demo gif
 - [ ] scroll preview content
+- [ ] copy to clipboard with ${curBuf}
+- [x] add environment variables to run commands
+

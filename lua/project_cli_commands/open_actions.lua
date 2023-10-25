@@ -27,14 +27,20 @@ M.execute_script_with_params = function(prompt_bufnr, with_params, direction, si
   -- Replace `${currentBuffer}` with the current buffer's path
   cmdLine = cmdLine:gsub("%${currentBuffer}", current_buffer_path)
 
-  local cmdTerm = Terminal:new({
+  local termParams = {
     id            = id,
     cmd           = cmdLine,
     hidden        = true,
     close_on_exit = false,
     -- direction     = direction,
     -- size          = size,
-  })
+  }
+  local env = require('project_cli_commands').envTable
+  if env then
+    termParams.env = env
+  end
+
+  local cmdTerm = Terminal:new(termParams)
 
   cmdTerm:toggle(size, direction)
   -- print(vim.inspect(scriptsFromJson[selection.value]))
