@@ -6,7 +6,7 @@ local conf = require("telescope.config").values
 local previewers = require("telescope.previewers")
 
 local openConfigFile = require("project_cli_commands.file").openConfigFile
-local readEnvFromFile = require("project_cli_commands.file").readEnvFromFile
+local getEnvTable = require("project_cli_commands.file").getEnvTable
 local getSubstringAfterSecondSlash = require("project_cli_commands.str_utils").getSubstringAfterSecondSlash
 local open_action = require('project_cli_commands.actions').open_vertical
 
@@ -41,11 +41,7 @@ M.open = function(opts)
   end
 
   local envPathHead = jsonTable['env']
-  local envTable
-  if envPathHead then
-    local envFilePath = vim.fn.getcwd() .. '/.nvim/' .. envPathHead
-    envTable = readEnvFromFile(envFilePath)
-  end
+  local envTable = getEnvTable(envPathHead)
   M.envTable = envTable
 
   -- find the length of the longest script name
@@ -70,12 +66,22 @@ M.open = function(opts)
       entry_maker = function(entry)
         -- fill string with spaces to make it the same length as the longest script name
         local spaces = string.rep(" ", longestScriptName - #entry[1])
-        local display = entry[1] .. spaces .. "  ||  " .. entry[2]
+        local cmd = entry[2]
+        local env
+        local after
+        if type(entry[2]) == "table" then
+          cmd = entry[2]["cmd"]
+          env = entry[2]["env"]
+          after = entry[2]["after"]
+        end
+        local display = entry[1] .. spaces .. "  ||  " .. cmd
         return {
-          value = entry[2],
+          value = cmd,
           ordinal = entry[1],
           display = display,
-          code = entry[2]
+          code = cmd,
+          env = env,
+          after = after
         }
       end,
     },

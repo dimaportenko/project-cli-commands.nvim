@@ -1,4 +1,4 @@
-# project-cli-commnads.nvim
+# project-cli-commands.nvim
 Quickly run your project cli commands with Telescope and ToggleTerm. 
 
 
@@ -19,4 +19,5 @@ Quickly run your project cli commands with Telescope and ToggleTerm.
 - [ ] scroll preview content
 - [ ] copy to clipboard with ${curBuf}
 - [x] add environment variables to run commands
+- [ ] table config for commands
 

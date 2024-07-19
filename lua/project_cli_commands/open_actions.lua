@@ -4,6 +4,8 @@ local state = require('telescope.actions.state')
 local Terminal = require("toggleterm.terminal").Terminal
 
 local next_id = require("project_cli_commands.term_utils").next_id
+local getEnvTable = require("project_cli_commands.file").getEnvTable
+
 
 local M = {}
 
@@ -35,12 +37,28 @@ M.execute_script_with_params = function(prompt_bufnr, with_params, direction, si
     -- direction     = direction,
     -- size          = size,
   }
-  local env = require('project_cli_commands').envTable
+
+  local env
+  if selection.env then
+    env = getEnvTable(selection.env)
+  end
+
+  if not env then
+    env = require('project_cli_commands').envTable
+  end
+
   if env then
     termParams.env = env
   end
 
   local cmdTerm = Terminal:new(termParams)
+
+  if selection.after then
+    cmdTerm.on_exit = function()
+      -- print("on_exit", selection.after)
+      vim.cmd(selection.after)
+    end
+  end
 
   cmdTerm:toggle(size, direction)
   -- print(vim.inspect(scriptsFromJson[selection.value]))

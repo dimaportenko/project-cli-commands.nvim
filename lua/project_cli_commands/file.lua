@@ -63,4 +63,13 @@ M.readEnvFromFile = function(filepath)
   return env_table
 end
 
+M.getEnvTable = function(filepath)
+  local envTable
+  if filepath then
+    local envFilePath = vim.fn.getcwd() .. '/.nvim/' .. filepath
+    envTable = M.readEnvFromFile(envFilePath)
+  end
+  return envTable
+end
+
 return M
