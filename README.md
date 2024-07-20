@@ -2,6 +2,21 @@
 
 Quickly run your project cli commands with Telescope and ToggleTerm.
 
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Commands Configuration](#commands-configuration)
+  - [Telescope commands](#telescope-commands)
+  - [Keymap](#keymap)
+- [Features](#features)
+  - [Open terminal with command](#open-terminal-with-command)
+  - [Run command with input](#run-command-with-input)
+  - [Copy command to clipboard](#copy-command-to-clipboard)
+  - [Run command after](#run-command-after)
+  - [Environment variables](#environment-variables)
+  - [Inject current buffer path to command](#inject-current-buffer-path-to-command)
+  - [List of running commands](#list-of-running-commands)
+- [Possible improvments](#todo)
+
 ## Installation
 
 Lazy config
@@ -133,7 +148,7 @@ For example you would like to run test for current buffer you can configure it l
 
 You can open list of running commands with `Telescope project_cli_commands running`. There you can show/hide terminal for each command. Or you can stop running command.
 
-## TODO:
+## TODO
 
 - [x] keymap open toggleterm with different positions (e.g. float like rnstart cmd)
 - [x] merge telescope-toggleterm plugin with this one
