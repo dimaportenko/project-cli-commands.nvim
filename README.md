@@ -1,6 +1,27 @@
 # project-cli-commands.nvim
 
+<div align="left">
+  <a align="left" href="https://github.com/dimaportenko?tab=followers">
+    <img src="https://img.shields.io/github/followers/dimaportenko?label=Follow%20%40dimaportenko&style=social" />
+  </a>
+  <br/>
+  <a align="left" href="https://twitter.com/dimaportenko">
+    <img src="https://img.shields.io/twitter/follow/dimaportenko?label=Follow%20%40dimaportenko&style=social" />
+  </a>
+  <br/>
+  <a align="left" href="https://www.youtube.com/channel/UCReKeeIMZywvQoaZPZKzQbQ">
+    <img src="https://img.shields.io/youtube/channel/subscribers/UCReKeeIMZywvQoaZPZKzQbQ" />
+  </a>
+  <br/>
+  <a align="left" href="https://www.youtube.com/channel/UCReKeeIMZywvQoaZPZKzQbQ">
+    <img src="https://img.shields.io/youtube/channel/views/UCReKeeIMZywvQoaZPZKzQbQ" />
+  </a>
+</div>
+<br/>
+
 Quickly run your project cli commands with Telescope and ToggleTerm.
+
+![demo](https://raw.githubusercontent.com/dimaportenko/project-cli-commands.nvim/main/docs/demo.gif)
 
 - [Installation](#installation)
 - [Usage](#usage)
