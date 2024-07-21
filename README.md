@@ -19,7 +19,7 @@
 </div>
 <br/>
 
-Quickly run your project cli commands with Telescope and ToggleTerm.
+Quickly run your project cli commands with [Telescope](https://github.com/nvim-telescope/telescope.nvim) and [ToggleTerm](https://github.com/akinsho/toggleterm.nvim).
 
 ![demo](https://raw.githubusercontent.com/dimaportenko/project-cli-commands.nvim/main/docs/demo.gif)
 
