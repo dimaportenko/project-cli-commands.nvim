@@ -25,7 +25,7 @@ M.open = function(opts)
 
   -- openConfigFile returns a merged config object (global + project),
   -- not a raw JSON string.
-  local mergedConfigResult, error = openConfigFile()
+  local mergedConfigResult, error = openConfigFile(M.config.global_config_path)
 
   if error ~= nil then
     return
@@ -210,6 +210,8 @@ end
 
 M.setup = function(config)
   local defaults = {
+    -- Path to the global config file (default: ~/.config/nvim/config.json)
+    global_config_path = vim.fn.expand('~/.config/nvim/config.json'),
     -- Key mappings bound inside the telescope window
     running_telescope_mapping = {
       ['<C-c>'] = require('project_cli_commands.actions').exit_terminal,

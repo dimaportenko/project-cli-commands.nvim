@@ -57,6 +57,9 @@ Lazy config
     local RunActions = require('project_cli_commands.actions')
 
     local config = {
+      -- Optional: override the global config path (default: ~/.config/nvim/config.json)
+      -- global_config_path = vim.fn.expand('~/.config/project-cli-commands/config.json'),
+
       -- Key mappings bound inside the telescope window
       running_telescope_mapping = {
         ['<C-c>'] = RunActions.exit_terminal,
@@ -91,7 +94,7 @@ Lazy config
 
 Configuration can be stored in two places:
 
-- Global config: `~/.config/nvim/config.json`
+- Global config: `~/.config/nvim/config.json` (default, configurable via `global_config_path`)
 - Project config: `.nvim/config.json`
 
 Both files use the same JSON schema. When both files exist, the plugin merges them with this precedence:

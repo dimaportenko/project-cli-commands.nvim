@@ -85,11 +85,11 @@ local mergeConfig = function(globalConfig, projectConfig, globalDirPath, project
 end
 
 
-M.openConfigFile = function()
+M.openConfigFile = function(globalConfigPath)
   local projectDirPath = vim.fn.getcwd() .. '/.nvim'
   local projectConfigPath = projectDirPath .. '/config.json'
-  local globalDirPath = vim.fn.expand('~/.config/nvim')
-  local globalConfigPath = globalDirPath .. '/config.json'
+  globalConfigPath = globalConfigPath or vim.fn.expand('~/.config/nvim/config.json')
+  local globalDirPath = vim.fn.fnamemodify(globalConfigPath, ':h')
 
   local globalConfigString = readFile(globalConfigPath)
   local globalConfig
