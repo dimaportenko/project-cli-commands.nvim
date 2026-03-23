@@ -101,6 +101,8 @@ Example of `config.json`:
     "current:ls": "ls -la ${currentBuffer}",
     "print:env": "echo $EXPO_TOKEN",
     "print:env:local": {
+      "name": "Print local token",
+      "description": "Echo EXPO_TOKEN from .env.local",
       "cmd": "echo $EXPO_TOKEN",
       "env": ".env.local",
       "after": "Telescope find_files"
@@ -114,6 +116,8 @@ Example of `config.json`:
   - `key` - command name.
   - `value` - (string) terminal command to run.
   - `value` - (table) command configuration.
+    - `name` - (optional) display name shown in Telescope instead of the command key.
+    - `description` - (optional) text shown in Telescope after `name` (or key if `name` is missing).
     - `cmd` - terminal command to run.
     - `env` - (optional) path to the environment file. It will be loaded before running the command.
     - `after` - (optional) neovim command to run after the terminal command.
