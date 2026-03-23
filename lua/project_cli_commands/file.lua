@@ -65,11 +65,16 @@ local mergeConfig = function(globalConfig, projectConfig, globalDirPath, project
           mergedConfig.commands[commandName] = commandConfig
           commandBaseDirs[commandName] = baseDirPath
         end
+      elseif key == "env" then
+        if type(value) == "string" then
+          mergedConfig.env = value
+          envBaseDir = baseDirPath
+        else
+          mergedConfig.env = nil
+          envBaseDir = nil
+        end
       else
         mergedConfig[key] = value
-        if key == "env" then
-          envBaseDir = baseDirPath
-        end
       end
     end
   end
