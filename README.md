@@ -89,7 +89,18 @@ Lazy config
 
 ### Commands Configuration
 
-Configuration is stored in `.nvim/config.json`. If you don't have `config.json` and run `Telescope project_cli_commands open` it will ask you to create new config for you.
+Configuration can be stored in two places:
+
+- Global config: `~/.config/nvim/config.json`
+- Project config: `.nvim/config.json`
+
+Both files use the same JSON schema. When both files exist, the plugin merges them with this precedence:
+
+- Project config overrides global config for top-level keys
+- Commands with the same name are overridden by project config
+- Keys that exist only in global config remain available
+
+If neither file exists and you run `Telescope project_cli_commands open`, the plugin asks to create `.nvim/config.json` in the current project.
 
 Example of `config.json`:
 
@@ -121,6 +132,44 @@ Example of `config.json`:
     - `cmd` - terminal command to run.
     - `env` - (optional) path to the environment file. It will be loaded before running the command.
     - `after` - (optional) neovim command to run after the terminal command.
+
+Example merge behavior (global + project override):
+
+Global `~/.config/nvim/config.json`
+
+```json
+{
+  "env": ".env.shared",
+  "commands": {
+    "test:all": "npm test",
+    "lint": "npm run lint"
+  }
+}
+```
+
+Project `.nvim/config.json`
+
+```json
+{
+  "commands": {
+    "test:all": "pnpm test",
+    "build": "pnpm build"
+  }
+}
+```
+
+Merged result used by the picker:
+
+```json
+{
+  "env": ".env.shared",
+  "commands": {
+    "test:all": "pnpm test",
+    "lint": "npm run lint",
+    "build": "pnpm build"
+  }
+}
+```
 
 ### Telescope commands
 

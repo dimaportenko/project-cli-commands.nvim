@@ -23,18 +23,24 @@ local M = {}
 M.open = function(opts)
   opts = opts or {}
 
-  local jsonString, error = openConfigFile()
+  -- openConfigFile returns a merged config object (global + project),
+  -- not a raw JSON string.
+  local mergedConfigResult, error = openConfigFile()
 
   if error ~= nil then
     return
   end
 
-  local jsonTable = vim.fn.json_decode(jsonString)
-  if jsonTable == nil then
+  if mergedConfigResult == nil or type(mergedConfigResult.config) ~= "table" then
     return
   end
 
+  local jsonTable = mergedConfigResult.config
+
   local scriptsFromJson = jsonTable['commands']
+  if type(scriptsFromJson) ~= "table" then
+    return
+  end
   local scriptsNames    = {}
   for command_key, code in pairs(scriptsFromJson) do
     local cmd, env, after, name, description
@@ -62,7 +68,7 @@ M.open = function(opts)
   end
 
   local envPathHead = jsonTable['env']
-  local envTable = getEnvTable(envPathHead)
+  local envTable = getEnvTable(envPathHead, mergedConfigResult.envBaseDir)
   M.envTable = envTable
 
   -- find the length of the longest script name
@@ -99,6 +105,9 @@ M.open = function(opts)
           display = display,
           code = entry.cmd,
           env = entry.env,
+          -- Track where this command came from so command-level `env` paths
+          -- are resolved relative to the correct config directory.
+          env_base_dir = mergedConfigResult.commandBaseDirs[entry.command_key],
           after = entry.after
         }
       end,
