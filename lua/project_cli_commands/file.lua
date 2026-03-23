@@ -159,17 +159,24 @@ M.readEnvFromFile = function(filepath)
 end
 
 M.getEnvTable = function(filepath, baseDirPath)
-  local envTable
-  if filepath then
-    local envFilePath
-    if filepath:sub(1, 1) == '/' then
-      envFilePath = filepath
-    else
-      local envBaseDir = baseDirPath or (vim.fn.getcwd() .. '/.nvim')
-      envFilePath = envBaseDir .. '/' .. filepath
-    end
-    envTable = M.readEnvFromFile(envFilePath)
+  if filepath == vim.NIL then
+    filepath = nil
   end
+
+  if type(filepath) ~= "string" or filepath == "" then
+    return nil
+  end
+
+  local envTable
+  local envFilePath
+  if filepath:sub(1, 1) == '/' then
+    envFilePath = filepath
+  else
+    local envBaseDir = baseDirPath or (vim.fn.getcwd() .. '/.nvim')
+    envFilePath = envBaseDir .. '/' .. filepath
+  end
+  envTable = M.readEnvFromFile(envFilePath)
+
   return envTable
 end
 
