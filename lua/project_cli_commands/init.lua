@@ -47,8 +47,8 @@ M.open = function(opts)
       cmd = code["cmd"]
       env = code["env"]
       after = code["after"]
-      name = code["name"] or command_key
-      description = code["description"] or code["cmd"]
+      name = (code["name"] ~= vim.NIL and code["name"]) or command_key
+      description = (code["description"] ~= vim.NIL and code["description"]) or code["cmd"]
     end
 
     table.insert(scriptsNames, {
