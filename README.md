@@ -122,7 +122,7 @@ Example of `config.json`:
 }
 ```
 
-- `env` - (optional) path to the environment file. It will be loaded before running the command.
+- `env` - (optional) path to the environment file. It will be loaded before running the command. Relative paths are resolved from the directory containing the config file that defines them — `~/.config/nvim/` for global config and `.nvim/` for project config. Absolute paths are used as-is.
 - `commands` - list of termainal commands.
   - `key` - command name.
   - `value` - (string) terminal command to run.

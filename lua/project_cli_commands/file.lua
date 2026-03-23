@@ -107,7 +107,7 @@ M.openConfigFile = function()
   if projectConfigString == nil and globalConfig == nil then
     local choice
     repeat
-      choice = vim.fn.input(".nvim/config.json isn't found do you want to create it? (y/n): ")
+      choice = vim.fn.input("No config found (neither ~/.config/nvim/config.json nor .nvim/config.json). Create .nvim/config.json? (y/n): ")
     until choice == 'y' or choice == 'n'
 
     if choice == 'y' then
