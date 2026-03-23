@@ -87,9 +87,15 @@ M.open = function(opts)
       entry_maker = function(entry)
         local spaces = string.rep(" ", longestScriptName - #entry.name)
         local display = entry.name .. spaces .. "  ||  " .. entry.description
+        local ord_parts = {}
+        for _, v in ipairs({ entry.name, entry.command_key, entry.description }) do
+          if v ~= nil and v ~= vim.NIL then
+            table.insert(ord_parts, tostring(v))
+          end
+        end
         return {
           value = entry.cmd,
-          ordinal = table.concat({ entry.name, entry.command_key, entry.description }, " "),
+          ordinal = table.concat(ord_parts, " "),
           display = display,
           code = entry.cmd,
           env = entry.env,
