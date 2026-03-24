@@ -36,8 +36,29 @@ M.open = function(opts)
 
   local scriptsFromJson = jsonTable['commands']
   local scriptsNames    = {}
-  for name, code in pairs(scriptsFromJson) do
-    table.insert(scriptsNames, { name, code })
+  for command_key, code in pairs(scriptsFromJson) do
+    local cmd, env, after, name, description
+
+    if type(code) == "string" then
+      cmd = code
+      name = command_key
+      description = code
+    else
+      cmd = code["cmd"]
+      env = code["env"]
+      after = code["after"]
+      name = (code["name"] ~= vim.NIL and code["name"]) or command_key
+      description = (code["description"] ~= vim.NIL and code["description"]) or code["cmd"]
+    end
+
+    table.insert(scriptsNames, {
+      command_key = command_key,
+      name = name,
+      description = description,
+      cmd = cmd,
+      env = env,
+      after = after,
+    })
   end
 
   local envPathHead = jsonTable['env']
@@ -47,8 +68,8 @@ M.open = function(opts)
   -- find the length of the longest script name
   local longestScriptName = 0
   for _, script in ipairs(scriptsNames) do
-    if #script[1] > longestScriptName then
-      longestScriptName = #script[1]
+    if #script.name > longestScriptName then
+      longestScriptName = #script.name
     end
   end
 
@@ -64,24 +85,21 @@ M.open = function(opts)
     finder = finders.new_table {
       results = scriptsNames,
       entry_maker = function(entry)
-        -- fill string with spaces to make it the same length as the longest script name
-        local spaces = string.rep(" ", longestScriptName - #entry[1])
-        local cmd = entry[2]
-        local env
-        local after
-        if type(entry[2]) == "table" then
-          cmd = entry[2]["cmd"]
-          env = entry[2]["env"]
-          after = entry[2]["after"]
+        local spaces = string.rep(" ", longestScriptName - #entry.name)
+        local display = entry.name .. spaces .. "  ||  " .. entry.description
+        local ord_parts = {}
+        for _, v in ipairs({ entry.name, entry.command_key, entry.description }) do
+          if v ~= nil and v ~= vim.NIL then
+            table.insert(ord_parts, tostring(v))
+          end
         end
-        local display = entry[1] .. spaces .. "  ||  " .. cmd
         return {
-          value = cmd,
-          ordinal = entry[1],
+          value = entry.cmd,
+          ordinal = table.concat(ord_parts, " "),
           display = display,
-          code = cmd,
-          env = env,
-          after = after
+          code = entry.cmd,
+          env = entry.env,
+          after = entry.after
         }
       end,
     },
