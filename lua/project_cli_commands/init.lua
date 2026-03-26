@@ -5,8 +5,10 @@ local sorters = require('telescope.sorters')
 local conf = require("telescope.config").values
 local previewers = require("telescope.previewers")
 
-local openConfigFile = require("project_cli_commands.file").openConfigFile
-local getEnvTable = require("project_cli_commands.file").getEnvTable
+local file = require("project_cli_commands.file")
+local openConfigFile = file.openConfigFile
+local getEnvTable = file.getEnvTable
+local defaultGlobalConfigPath = file.defaultGlobalConfigPath
 local getSubstringAfterSecondSlash = require("project_cli_commands.str_utils").getSubstringAfterSecondSlash
 local open_action = require('project_cli_commands.actions').open_vertical
 
@@ -210,8 +212,8 @@ end
 
 M.setup = function(config)
   local defaults = {
-    -- Path to the global config file (default: ~/.config/nvim/config.json)
-    global_config_path = vim.fn.expand('~/.config/nvim/config.json'),
+    -- Path to the global config file (default: stdpath('config') .. '/project-cli-commands.config.json')
+    global_config_path = defaultGlobalConfigPath(),
     -- Key mappings bound inside the telescope window
     running_telescope_mapping = {
       ['<C-c>'] = require('project_cli_commands.actions').exit_terminal,

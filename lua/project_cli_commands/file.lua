@@ -4,6 +4,12 @@ local notifyError = function(message)
   vim.notify(message, vim.log.levels.ERROR)
 end
 
+local defaultGlobalConfigPath = function()
+  return vim.fn.stdpath('config') .. '/project-cli-commands.config.json'
+end
+
+M.defaultGlobalConfigPath = defaultGlobalConfigPath
+
 local createDirIfNotExists = function(filePath)
   -- Check if directory exists
   if vim.fn.isdirectory(filePath) == 0 then -- Create the directory
@@ -93,7 +99,7 @@ end
 M.openConfigFile = function(globalConfigPath)
   local projectDirPath = vim.fn.getcwd() .. '/.nvim'
   local projectConfigPath = projectDirPath .. '/config.json'
-  globalConfigPath = globalConfigPath or vim.fn.expand('~/.config/nvim/config.json')
+  globalConfigPath = globalConfigPath or defaultGlobalConfigPath()
   local globalDirPath = vim.fn.fnamemodify(globalConfigPath, ':h')
 
   local globalConfigString = readFile(globalConfigPath)
@@ -112,7 +118,11 @@ M.openConfigFile = function(globalConfigPath)
   if projectConfigString == nil and globalConfig == nil then
     local choice
     repeat
-      choice = vim.fn.input("No config found (neither ~/.config/nvim/config.json nor .nvim/config.json). Create .nvim/config.json? (y/n): ")
+      choice = vim.fn.input(
+        "No config found (neither "
+          .. globalConfigPath
+          .. " nor .nvim/config.json). Create .nvim/config.json? (y/n): "
+      )
     until choice == 'y' or choice == 'n'
 
     if choice == 'y' then

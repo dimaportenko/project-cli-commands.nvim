@@ -57,8 +57,9 @@ Lazy config
     local RunActions = require('project_cli_commands.actions')
 
     local config = {
-      -- Optional: override the global config path (default: ~/.config/nvim/config.json)
-      -- global_config_path = vim.fn.expand('~/.config/project-cli-commands/config.json'),
+      -- Optional: override the global config path
+      -- Default: vim.fn.stdpath('config') .. '/project-cli-commands.config.json'
+      -- global_config_path = vim.fn.stdpath('config') .. '/project-cli-commands.config.json',
 
       -- Key mappings bound inside the telescope window
       running_telescope_mapping = {
@@ -94,7 +95,7 @@ Lazy config
 
 Configuration can be stored in two places:
 
-- Global config: `~/.config/nvim/config.json` (default, configurable via `global_config_path`)
+- Global config: `vim.fn.stdpath('config') .. '/project-cli-commands.config.json'` by default
 - Project config: `.nvim/config.json`
 
 Both files use the same JSON schema. When both files exist, the plugin merges them with this precedence:
@@ -125,7 +126,7 @@ Example of `config.json`:
 }
 ```
 
-- `env` - (optional) path to the environment file. It will be loaded before running the command. Relative paths are resolved from the directory containing the config file that defines them — `~/.config/nvim/` for global config and `.nvim/` for project config. Absolute paths are used as-is.
+- `env` - (optional) path to the environment file. It will be loaded before running the command. Relative paths are resolved from the directory containing the config file that defines them — Neovim's config directory for global config and `.nvim/` for project config. Absolute paths are used as-is.
 - `commands` - list of termainal commands.
   - `key` - command name.
   - `value` - (string) terminal command to run.
@@ -138,7 +139,7 @@ Example of `config.json`:
 
 Example merge behavior (global + project override):
 
-Global `~/.config/nvim/config.json`
+Global `vim.fn.stdpath('config') .. '/project-cli-commands.config.json'`
 
 ```json
 {
