@@ -1,5 +1,15 @@
 local M = {}
 
+local notifyError = function(message)
+  vim.notify(message, vim.log.levels.ERROR)
+end
+
+local defaultGlobalConfigPath = function()
+  return vim.fn.stdpath('config') .. '/project-cli-commands.config.json'
+end
+
+M.defaultGlobalConfigPath = defaultGlobalConfigPath
+
 local createDirIfNotExists = function(filePath)
   -- Check if directory exists
   if vim.fn.isdirectory(filePath) == 0 then -- Create the directory
@@ -16,23 +26,111 @@ local createDirIfNotExists = function(filePath)
   return true
 end
 
-
-M.openConfigFile = function()
-  local filePath = vim.fn.getcwd() .. '/.nvim/config.json'
-
+local readFile = function(filePath)
   local file = io.open(filePath, "rb")
   if file == nil then
+    return nil
+  end
+
+  local fileContent = file:read "*a"
+  file:close()
+
+  return fileContent
+end
+
+local decodeJson = function(jsonString, filePath, configName)
+  local ok, decoded = pcall(vim.fn.json_decode, jsonString)
+  if not ok then
+    return nil, string.format("Invalid %s config JSON at %s: %s", configName, filePath, decoded)
+  end
+
+  if type(decoded) ~= "table" then
+    return nil, string.format("Invalid %s config JSON at %s: root value must be an object", configName, filePath)
+  end
+
+  return decoded, nil
+end
+
+local mergeConfig = function(globalConfig, projectConfig, globalDirPath, projectDirPath)
+  local mergedConfig = {}
+  local commandBaseDirs = {}
+  local envBaseDir
+
+  local function applyConfig(config, baseDirPath)
+    if type(config) ~= "table" then
+      return
+    end
+
+    for key, value in pairs(config) do
+      if key == "commands" and type(value) == "table" then
+        if type(mergedConfig.commands) ~= "table" then
+          mergedConfig.commands = {}
+        end
+
+        for commandName, commandConfig in pairs(value) do
+          mergedConfig.commands[commandName] = commandConfig
+          commandBaseDirs[commandName] = baseDirPath
+        end
+      elseif key == "env" then
+        if type(value) == "string" then
+          mergedConfig.env = value
+          envBaseDir = baseDirPath
+        else
+          mergedConfig.env = nil
+          envBaseDir = nil
+        end
+      else
+        mergedConfig[key] = value
+      end
+    end
+  end
+
+  applyConfig(globalConfig, globalDirPath)
+  applyConfig(projectConfig, projectDirPath)
+
+  return {
+    config = mergedConfig,
+    envBaseDir = envBaseDir,
+    commandBaseDirs = commandBaseDirs,
+  }
+end
+
+
+M.openConfigFile = function(globalConfigPath)
+  local projectDirPath = vim.fn.getcwd() .. '/.nvim'
+  local projectConfigPath = projectDirPath .. '/config.json'
+  globalConfigPath = globalConfigPath or defaultGlobalConfigPath()
+  local globalDirPath = vim.fn.fnamemodify(globalConfigPath, ':h')
+
+  local globalConfigString = readFile(globalConfigPath)
+  local globalConfig
+  if globalConfigString ~= nil then
+    local decodeError
+    globalConfig, decodeError = decodeJson(globalConfigString, globalConfigPath, "global")
+    if decodeError ~= nil then
+      notifyError(decodeError)
+      return nil, decodeError
+    end
+  end
+
+  local projectConfigString = readFile(projectConfigPath)
+  local projectConfig
+  if projectConfigString == nil and globalConfig == nil then
     local choice
     repeat
-      choice = vim.fn.input(".nvim/config.json isn't found do you want to create it? (y/n): ")
+      choice = vim.fn.input(
+        "No config found (neither "
+          .. globalConfigPath
+          .. " nor .nvim/config.json). Create .nvim/config.json? (y/n): "
+      )
     until choice == 'y' or choice == 'n'
 
     if choice == 'y' then
-      if createDirIfNotExists(vim.fn.getcwd() .. '/.nvim') == false then
+      if createDirIfNotExists(projectDirPath) == false then
         error("Can't create .nvim directory.")
       end
       -- Create a new file and write an empty table
-      local new_file = io.open(filePath, "w")
+      local new_file = io.open(projectConfigPath, "w")
       if new_file == nil then
         error(".nvim/config.json could not be created.")
       end
@@ -41,15 +139,22 @@ M.openConfigFile = function()
       new_file:close()
 
       print(".nvim/config.json created with an empty table.")
-      vim.api.nvim_command('edit ' .. filePath)
+      vim.api.nvim_command('edit ' .. projectConfigPath)
     end
     return nil, ".nvim/config.json isn't found."
   end
 
-  local jsonString = file:read "*a"
-  file:close()
+  if projectConfigString ~= nil then
+    local decodeError
+    projectConfig, decodeError = decodeJson(projectConfigString, projectConfigPath, "project")
+    if decodeError ~= nil then
+      notifyError(decodeError)
+      return nil, decodeError
+    end
+  end
 
-  return jsonString, nil
+  local mergedConfig = mergeConfig(globalConfig, projectConfig, globalDirPath, projectDirPath)
+  return mergedConfig, nil
 end
 
 M.readEnvFromFile = function(filepath)
@@ -63,12 +168,25 @@ M.readEnvFromFile = function(filepath)
   return env_table
 end
 
-M.getEnvTable = function(filepath)
-  local envTable
-  if filepath then
-    local envFilePath = vim.fn.getcwd() .. '/.nvim/' .. filepath
-    envTable = M.readEnvFromFile(envFilePath)
+M.getEnvTable = function(filepath, baseDirPath)
+  if filepath == vim.NIL then
+    filepath = nil
   end
+
+  if type(filepath) ~= "string" or filepath == "" then
+    return nil
+  end
+
+  local envTable
+  local envFilePath
+  if filepath:sub(1, 1) == '/' then
+    envFilePath = filepath
+  else
+    local envBaseDir = baseDirPath or (vim.fn.getcwd() .. '/.nvim')
+    envFilePath = envBaseDir .. '/' .. filepath
+  end
+  envTable = M.readEnvFromFile(envFilePath)
+
   return envTable
 end
 

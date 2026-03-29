@@ -40,7 +40,9 @@ M.execute_script_with_params = function(prompt_bufnr, with_params, direction, si
 
   local env
   if selection.env then
-    env = getEnvTable(selection.env)
+    -- Resolve per-command env file relative to the config that defined
+    -- this command (global or project).
+    env = getEnvTable(selection.env, selection.env_base_dir)
   end
 
   if not env then

@@ -57,6 +57,10 @@ Lazy config
     local RunActions = require('project_cli_commands.actions')
 
     local config = {
+      -- Optional: override the global config path
+      -- Default: vim.fn.stdpath('config') .. '/project-cli-commands.config.json'
+      -- global_config_path = vim.fn.stdpath('config') .. '/project-cli-commands.config.json',
+
       -- Key mappings bound inside the telescope window
       running_telescope_mapping = {
         ['<C-c>'] = RunActions.exit_terminal,
@@ -89,7 +93,18 @@ Lazy config
 
 ### Commands Configuration
 
-Configuration is stored in `.nvim/config.json`. If you don't have `config.json` and run `Telescope project_cli_commands open` it will ask you to create new config for you.
+Configuration can be stored in two places:
+
+- Global config: `vim.fn.stdpath('config') .. '/project-cli-commands.config.json'` by default
+- Project config: `.nvim/config.json`
+
+Both files use the same JSON schema. When both files exist, the plugin merges them with this precedence:
+
+- Project config overrides global config for top-level keys
+- Commands with the same name are overridden by project config
+- Keys that exist only in global config remain available
+
+If neither file exists and you run `Telescope project_cli_commands open`, the plugin asks to create `.nvim/config.json` in the current project.
 
 Example of `config.json`:
 
@@ -111,7 +126,7 @@ Example of `config.json`:
 }
 ```
 
-- `env` - (optional) path to the environment file. It will be loaded before running the command.
+- `env` - (optional) path to the environment file. It will be loaded before running the command. Relative paths are resolved from the directory containing the config file that defines them — Neovim's config directory for global config and `.nvim/` for project config. Absolute paths are used as-is.
 - `commands` - list of termainal commands.
   - `key` - command name.
   - `value` - (string) terminal command to run.
@@ -121,6 +136,44 @@ Example of `config.json`:
     - `cmd` - terminal command to run.
     - `env` - (optional) path to the environment file. It will be loaded before running the command.
     - `after` - (optional) neovim command to run after the terminal command.
+
+Example merge behavior (global + project override):
+
+Global `vim.fn.stdpath('config') .. '/project-cli-commands.config.json'`
+
+```json
+{
+  "env": ".env.shared",
+  "commands": {
+    "test:all": "npm test",
+    "lint": "npm run lint"
+  }
+}
+```
+
+Project `.nvim/config.json`
+
+```json
+{
+  "commands": {
+    "test:all": "pnpm test",
+    "build": "pnpm build"
+  }
+}
+```
+
+Merged result used by the picker:
+
+```json
+{
+  "env": ".env.shared",
+  "commands": {
+    "test:all": "pnpm test",
+    "lint": "npm run lint",
+    "build": "pnpm build"
+  }
+}
+```
 
 ### Telescope commands
 

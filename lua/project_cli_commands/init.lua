@@ -5,8 +5,10 @@ local sorters = require('telescope.sorters')
 local conf = require("telescope.config").values
 local previewers = require("telescope.previewers")
 
-local openConfigFile = require("project_cli_commands.file").openConfigFile
-local getEnvTable = require("project_cli_commands.file").getEnvTable
+local file = require("project_cli_commands.file")
+local openConfigFile = file.openConfigFile
+local getEnvTable = file.getEnvTable
+local defaultGlobalConfigPath = file.defaultGlobalConfigPath
 local getSubstringAfterSecondSlash = require("project_cli_commands.str_utils").getSubstringAfterSecondSlash
 local open_action = require('project_cli_commands.actions').open_vertical
 
@@ -23,18 +25,24 @@ local M = {}
 M.open = function(opts)
   opts = opts or {}
 
-  local jsonString, error = openConfigFile()
+  -- openConfigFile returns a merged config object (global + project),
+  -- not a raw JSON string.
+  local mergedConfigResult, error = openConfigFile(M.config.global_config_path)
 
   if error ~= nil then
     return
   end
 
-  local jsonTable = vim.fn.json_decode(jsonString)
-  if jsonTable == nil then
+  if mergedConfigResult == nil or type(mergedConfigResult.config) ~= "table" then
     return
   end
 
+  local jsonTable = mergedConfigResult.config
+
   local scriptsFromJson = jsonTable['commands']
+  if type(scriptsFromJson) ~= "table" then
+    return
+  end
   local scriptsNames    = {}
   for command_key, code in pairs(scriptsFromJson) do
     local cmd, env, after, name, description
@@ -62,7 +70,7 @@ M.open = function(opts)
   end
 
   local envPathHead = jsonTable['env']
-  local envTable = getEnvTable(envPathHead)
+  local envTable = getEnvTable(envPathHead, mergedConfigResult.envBaseDir)
   M.envTable = envTable
 
   -- find the length of the longest script name
@@ -99,6 +107,9 @@ M.open = function(opts)
           display = display,
           code = entry.cmd,
           env = entry.env,
+          -- Track where this command came from so command-level `env` paths
+          -- are resolved relative to the correct config directory.
+          env_base_dir = mergedConfigResult.commandBaseDirs[entry.command_key],
           after = entry.after
         }
       end,
@@ -201,6 +212,8 @@ end
 
 M.setup = function(config)
   local defaults = {
+    -- Path to the global config file (default: stdpath('config') .. '/project-cli-commands.config.json')
+    global_config_path = defaultGlobalConfigPath(),
     -- Key mappings bound inside the telescope window
     running_telescope_mapping = {
       ['<C-c>'] = require('project_cli_commands.actions').exit_terminal,
