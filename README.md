@@ -138,7 +138,7 @@ Example of `config.json`:
     - `cmd` - terminal command to run.
     - `env` - (optional) path to the environment file. It will be loaded before running the command.
     - `after` - (optional) neovim command to run after the terminal command.
-    - `placeholders` - (optional) map of placeholder names to lists of allowed values (see [Placeholder suggested values](#placeholder-suggested-values)).
+    - `placeholders` - (optional) map of placeholder names to lists of allowed values: strings or `{ "label", "value" }` objects (see [Placeholder suggested values](#placeholder-suggested-values)).
 
 Example merge behavior (global + project override):
 
@@ -243,10 +243,30 @@ Use `${name}` tokens in your command and define a `placeholders` map to restrict
 }
 ```
 
+Items may also be objects with a display `label` and a substituted `value`:
+
+```json
+{
+  "placeholders": {
+    "environment": [
+      { "label": "Staging", "value": "staging" },
+      { "label": "Production", "value": "production" }
+    ],
+    "region": [
+      { "label": "US East (N. Virginia)", "value": "us-east-1" },
+      { "label": "EU West (Ireland)", "value": "eu-west-1" },
+      { "label": "Asia Pacific (Singapore)", "value": "ap-southeast-1" }
+    ]
+  }
+}
+```
+
 - Multiple placeholders are resolved sequentially, left-to-right.
 - The same resolved value is substituted for every occurrence of `${name}` in the command.
+- List items are strings, or objects with a substituted `value` and optional display `label`. An empty string is a valid `value`.
 - `${currentBuffer}` is always resolved automatically and cannot be used as a placeholder name.
 - If a placeholder name in the map has no matching `${name}` token in `cmd`, or vice versa, a warning is shown and execution is aborted.
+- If a placeholder list is empty, or an item is not a string or `{ label, value }` object, a warning is shown and execution is aborted.
 
 #### Just integration
 

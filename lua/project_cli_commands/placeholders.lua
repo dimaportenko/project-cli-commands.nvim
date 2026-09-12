@@ -41,7 +41,47 @@ local function validate(cmd, placeholders)
     end
   end
 
+  for _, name in ipairs(cmd_names) do
+    local values = placeholders[name]
+    if type(values) ~= "table" then
+      return "placeholders '" .. name .. "' must be a non-empty list"
+    end
+    local count = 0
+    for i, item in ipairs(values) do
+      count = i
+      if type(item) == "table" then
+        if type(item.value) ~= "string" then
+          return "placeholders '" .. name .. "' item " .. i .. " must have a string value"
+        end
+        if item.label ~= nil and type(item.label) ~= "string" then
+          return "placeholders '" .. name .. "' item " .. i .. " label must be a string"
+        end
+      elseif type(item) ~= "string" then
+        return "placeholders '" .. name .. "' item " .. i .. " must be a string or { label, value }"
+      end
+    end
+    if count == 0 then
+      return "placeholders '" .. name .. "' must be a non-empty list"
+    end
+  end
+
   return nil
+end
+
+local function placeholder_entry(item)
+  if type(item) == 'table' then
+    local display = item.label or item.value
+    return {
+      value = item.value,
+      display = display,
+      ordinal = display .. ' ' .. item.value,
+    }
+  end
+  return {
+    value = item,
+    display = item,
+    ordinal = item,
+  }
 end
 
 local function resolve_sequential(cmd, placeholders, resolved, names, index, callback, cancel_state, main_prompt_bufnr)
@@ -68,22 +108,22 @@ local function resolve_sequential(cmd, placeholders, resolved, names, index, cal
     prompt_title = "Select " .. name .. ":",
     finder = finders.new_table {
       results = values,
-      entry_maker = function(item)
-        return {
-          value = item,
-          display = item,
-          ordinal = item,
-        }
-      end,
+      entry_maker = placeholder_entry,
     },
     sorter = sorters.get_generic_fuzzy_sorter(),
     attach_mappings = function(prompt_bufnr, map)
       actions.select_default:replace(function()
         local selection = state.get_selected_entry()
         actions.close(prompt_bufnr)
-        if selection then
+        if selection and type(selection.value) == 'string' then
           resolved[name] = selection.value
           resolve_sequential(cmd, placeholders, resolved, names, index + 1, callback, cancel_state, main_prompt_bufnr)
+        else
+          cancel_state.cancelled = true
+          if main_prompt_bufnr then
+            pcall(actions.close, main_prompt_bufnr)
+          end
+          vim.notify("project-cli-commands: no value selected for '" .. name .. "'", vim.log.levels.WARN)
         end
       end)
       map('i', '<Esc>', function()
