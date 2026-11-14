@@ -54,6 +54,7 @@ M.execute_script_with_params = function(prompt_bufnr, with_params, direction, si
     end
 
     local cmdTerm = Terminal:new(termParams)
+    require("project_cli_commands.jobs").track(cmdTerm)
 
     if selection.after then
       cmdTerm.on_exit = function()

@@ -244,6 +244,8 @@ M.setup = function(config)
     just = {
       enabled = true,
     },
+    -- Stop commands started by the plugin (and their child processes) when Neovim exits
+    stop_on_exit = true,
     -- Key mappings bound inside the telescope window
     running_telescope_mapping = {
       ['<C-c>'] = require('project_cli_commands.actions').exit_terminal,
@@ -271,6 +273,8 @@ M.setup = function(config)
   config = vim.tbl_deep_extend("force", defaults, config)
 
   M.config = config
+
+  require('project_cli_commands.jobs').setup(config.stop_on_exit)
 end
 
 return M

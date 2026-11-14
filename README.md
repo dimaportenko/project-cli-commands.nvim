@@ -38,6 +38,7 @@ Quickly run your project cli commands with [Telescope](https://github.com/nvim-t
   - [Placeholder suggested values](#placeholder-suggested-values)
   - [Just integration](#just-integration)
   - [List of running commands](#list-of-running-commands)
+  - [Stop commands on exit](#stop-commands-on-exit)
 - [Possible improvments](#todo)
 
 ## Installation
@@ -62,6 +63,9 @@ Lazy config
       -- Optional: override the global config path
       -- Default: vim.fn.stdpath('config') .. '/project-cli-commands.config.json'
       -- global_config_path = vim.fn.stdpath('config') .. '/project-cli-commands.config.json',
+
+      -- Optional: stop running commands when Neovim exits (default: true)
+      -- stop_on_exit = true,
 
       -- Key mappings bound inside the telescope window
       running_telescope_mapping = {
@@ -314,6 +318,22 @@ require('project_cli_commands').setup({
 #### List of running commands
 
 You can open list of running commands with `Telescope project_cli_commands running`. There you can show/hide terminal for each command. Or you can stop running command.
+
+#### Stop commands on exit
+
+Commands started from the picker are stopped when Neovim exits, so dev servers and
+watchers don't keep running in the background and holding ports. The whole process group
+gets `SIGTERM`, which also reaches child processes (e.g. `pnpm` → `node` → `next-server`).
+Only terminals started by this plugin are stopped; your other toggleterm terminals are
+left alone.
+
+To keep commands running after Neovim exits:
+
+```lua
+require('project_cli_commands').setup({
+  stop_on_exit = false,
+})
+```
 
 ## TODO
 
